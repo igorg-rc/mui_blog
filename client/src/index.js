@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import reportWebVitals from './reportWebVitals';
+import store from './redux/configureStore'
+import { Provider } from 'react-redux'
 import './index.css';
 
 
@@ -9,7 +11,9 @@ import { Layout_1_blog } from './layout_1_blog/Layout_1_blog'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Layout_1_blog />
+    <Provider store={store}>
+      <Layout_1_blog />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('layout_1_blog')
 );

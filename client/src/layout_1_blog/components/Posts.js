@@ -5,15 +5,16 @@ import {
   Container, 
   Grid, 
   Card,
-  CardMedia,
   CardActionArea,
   CardContent,
-  CardActions
+  CardActions,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { useHistory } from 'react-router';
-
-import posts from '../mocData'
+import { useState, useEffect } from 'react'
+import { getPosts, deletePost } from '../../api/posts/api'
+import { Spinner } from './plugins/Spinner'
+// import posts from '../mocData'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,8 +54,9 @@ const useStyles = makeStyles((theme) => ({
     height: '10vh'
   },
 
-  cardMedia: {
-    height: 250
+  cardImage: {
+    width: '100%',
+    height: 'auto'
   },
 
   cardActions: {
@@ -70,49 +72,81 @@ const useStyles = makeStyles((theme) => ({
 export const Posts = () => {
   const classes = useStyles()
   const history = useHistory()
+
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true)
+      const fetchedPosts = await getPosts()
+      setPosts(fetchedPosts)
+      setLoading(false)
+    }
+    fetchPosts()
+  }, [])
+
+  // Actions
+  const deletePostHandler = async (id) => {
+    setLoading(true)
+    await deletePost(id)
+    const newPostsList = posts.map(item => item._id !== id)
+    setPosts(newPostsList)
+    setLoading(false)
+ 
+    window.location.reload()
+    
+  }
+  
+  console.log(posts)
+
+  // Posts returned from API
+  const postList = posts.map(post => (
+    <Grid item xs={12} sm={6} md={4} lg={3} key={post._id}>
+      <Card className={classes.card}>
+        <CardActionArea onClick={() => history.push(`/${post._id}`)}>
+          <img src={post.imgUrl} className={classes.cardImage} />
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+              {post.title}
+            </Typography>
+            <div classame={classes.cardContent}>
+            <Typography className={classes.postContent} variant="body2" color="textSecondary" component="p">
+              {/* {post && post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content} */}
+            </Typography>
+            </div>
+          </CardContent>
+        </CardActionArea>
+        <CardActions className={classes.cardActions}>
+          <Button size="small" color="primary" onClick={() => history.push(`/${post._id}`)}>
+            Learn More
+          </Button>
+          <Button size="small" color="primary" onClick={() => history.push(`${post._id}/edit}`)}>
+            Edit
+          </Button>
+          <Button size="small" color="primary" onClick={() => deletePostHandler(post._id)}>
+            Delete
+          </Button>
+          
+        </CardActions>
+      </Card>
+    </Grid>
+  ))
+
+
+
+
   return (
     <div>
-      <Box className={classes.hero}>
+      {/* <Box className={classes.hero}>
         <Box>Last News</Box>
-      </Box>
+      </Box> */}
       <Container maxWidth="lg" className={classes.blogContainer}>
         <Typography variant="h4" color="primary" className={classes.blogTitle}>
-            Articles
-          </Typography>
+          Articles
+        </Typography>
         <Grid container spacing={3}>
-
-            { posts.map(post => (
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <Card className={classes.card}>
-                  <CardActionArea onClick={() => history.push(`/${post.id}`)}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image={post.img}
-                      title={post.title}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {post.title}
-                      </Typography>
-                      <div classame={classes.cardContent}>
-                      <Typography className={classes.postContent} variant="body2" color="textSecondary" component="p">
-                        {post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content}
-                      </Typography>
-                      </div>
-                    </CardContent>
-                  </CardActionArea>
-                  <CardActions className={classes.cardActions}>
-                    <Button size="small" color="primary" onClick={() => history.push(`/${post.id}`)}>
-                      Learn More
-                    </Button>
-                    <Button size="small" color="primary">
-                      Share
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-
+          { loading ? <Spinner /> : postList }
         </Grid>
       </Container>
     </div>

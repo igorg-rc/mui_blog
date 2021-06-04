@@ -6,16 +6,16 @@ import { Post } from './Post'
 import { Create } from './Create'
 import { Edit } from './Edit'
 import { Form } from './Form'
-import Carousel from '../components/plugins/Carousel'
+// import Carousel from '../components/plugins/Carousel'
 
 export const Index = () => {
   return (
     <>
       <Header />
       <Switch>
-        <Route path="/" component={Posts} exact />
-        <Route path="/form" component={Form} />
+        <Route exact path="/" component={Posts} />
         <Route path="/create" component={Create} />
+        <Route path="/form" component={Form} />
         <Route path="/:id/edit" component={Edit} />
         <Route path="/:id" component={Post} />
       </Switch>
