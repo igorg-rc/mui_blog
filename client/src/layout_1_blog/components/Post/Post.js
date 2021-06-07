@@ -2,10 +2,12 @@ import { useEffect, useState} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { useRouteMatch } from 'react-router'
 import { Container, Typography, Button } from '@material-ui/core'
+import { getSinglePost } from '../../../redux/PostSlice'
 // import Carousel from '../../plugins/Carousel/Carousel'
 
-import { getPost } from '../../api/posts/api'
-import { Spinner } from './plugins/Spinner'
+import { getPost } from '../../../api/postApi'
+import { Spinner } from '../plugins/Spinner'
+import { useDispatch, useSelector } from 'react-redux'
 
 const useStyles = makeStyles({
   titleContainer: {
@@ -47,7 +49,6 @@ const useStyles = makeStyles({
     textAlign: 'center',
     height: '10vh',
     maxWidth: '80%',
-    // paddingBottom: '2vh',
     paddingTop: '2vh',
     margin: 'auto'
   },
@@ -60,24 +61,28 @@ const useStyles = makeStyles({
 export const Post = () => {
   const classes = useStyles()
   const match = useRouteMatch()
-  const [post, setPost] = useState({})
-  const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
+  const { item, loading } = useSelector(state => state.post)
+
+  // useEffect(() => {
+  //   const fetchPost = async () => {
+  //     setLoading(true)
+  //     const fetchedPost = await getPost(match.params.id)
+  //     setPost(fetchedPost)
+  //     setLoading(false)
+  //   }
+  //   fetchPost()
+  // }, [])
 
   useEffect(() => {
-    const fetchPost = async () => {
-      setLoading(true)
-      const fetchedPost = await getPost(match.params.id)
-      setPost(fetchedPost)
-      setLoading(false)
-    }
-    fetchPost()
+    dispatch(getSinglePost(match.params.id))
   }, [])
 
-  console.log(post)
+  console.log(item)
 
   const postView =  <>
                       <div className={classes.titleContainer}>
-                        <Typography variant="h4">{post.title}</Typography>
+                        <Typography variant="h4">{item.title}</Typography>
                       </div>
                       {/* <div className={classes.detailsContainer}>
                         <span>{post.date}</span>
@@ -85,12 +90,12 @@ export const Post = () => {
                       </div> */}
                       <div className={classes.contentContainer}>
                         <Typography className={classes.content}>
-                          {post.content}
+                          {item.content}
                         </Typography>
                       </div>
                       <div className={classes.carouselTitle}>
                         <Typography variant="h5">Photo report</Typography>
-                        <img src={post.imgUrl} className={classes.postImage} />
+                        <img src={item.imgUrl} className={classes.postImage} />
                       </div>
                       <div className={classes.carousel}>
                         {/* <Carousel /> */}

@@ -6,8 +6,7 @@ const reducer = combineReducers({
 })
 
 const store = configureStore({
-  reducer,
-  middleware: [...getDefaultMiddleware({ thunk: false })]
+  reducer
 })
 
 export default store

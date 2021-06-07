@@ -11,10 +11,10 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { useHistory } from 'react-router';
-import { useState, useEffect } from 'react'
-import { getPosts, deletePost } from '../../api/posts/api'
-import { Spinner } from './plugins/Spinner'
-// import posts from '../mocData'
+import { useEffect } from 'react'
+import { Spinner } from '../plugins/Spinner'
+import { useSelector, useDispatch } from 'react-redux'
+import { getAllPosts, deleteSinglePost } from '../../../redux/PostSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,64 +70,44 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Posts = () => {
+  const { loading, items, test } = useSelector(state => state.post)
+  const dispatch = useDispatch()
   const classes = useStyles()
   const history = useHistory()
 
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(false)
-
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true)
-      const fetchedPosts = await getPosts()
-      setPosts(fetchedPosts)
-      setLoading(false)
-    }
-    fetchPosts()
+    dispatch(getAllPosts())
   }, [])
-
-  // Actions
-  const deletePostHandler = async (id) => {
-    setLoading(true)
-    await deletePost(id)
-    const newPostsList = posts.map(item => item._id !== id)
-    setPosts(newPostsList)
-    setLoading(false)
- 
-    window.location.reload()
-    
-  }
   
-  console.log(posts)
+  console.log(test, items)
 
-  // Posts returned from API
-  const postList = posts.map(post => (
-    <Grid item xs={12} sm={6} md={4} lg={3} key={post._id}>
+  // items returned from API
+  const postList = items.map(item => (
+    <Grid item xs={12} sm={6} md={4} lg={3} key={item._id}>
       <Card className={classes.card}>
-        <CardActionArea onClick={() => history.push(`/${post._id}`)}>
-          <img src={post.imgUrl} className={classes.cardImage} />
+        <CardActionArea onClick={() => history.push(`/${item._id}`)}>
+          <img src={item.imgUrl} className={classes.cardImage} />
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2">
-              {post.title}
+              {item.title}
             </Typography>
             <div classame={classes.cardContent}>
             <Typography className={classes.postContent} variant="body2" color="textSecondary" component="p">
-              {/* {post && post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content} */}
+              {/* {item && item.content.length > 100 ? `${item.content.substring(0, 100)}...` : item.content} */}
             </Typography>
             </div>
           </CardContent>
         </CardActionArea>
         <CardActions className={classes.cardActions}>
-          <Button size="small" color="primary" onClick={() => history.push(`/${post._id}`)}>
+          <Button size="small" color="primary" onClick={() => history.push(`/${item._id}`)}>
             Learn More
           </Button>
-          <Button size="small" color="primary" onClick={() => history.push(`${post._id}/edit}`)}>
+          <Button size="small" color="primary" onClick={() => history.push(`/edit/${item._id}`)}>
             Edit
           </Button>
-          <Button size="small" color="primary" onClick={() => deletePostHandler(post._id)}>
+          <Button size="small" color="primary" onClick={() => dispatch(deleteSinglePost(item._id))}>
             Delete
           </Button>
-          
         </CardActions>
       </Card>
     </Grid>

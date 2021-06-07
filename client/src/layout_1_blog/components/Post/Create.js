@@ -1,9 +1,11 @@
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
-import { createPost } from '../../api/posts/api'
+import { createNewPost } from '../../../redux/PostSlice'
 import { Form } from './Form'
 
 export const Create = () => {
   const history = useHistory()
+  const dispatch = useDispatch()
 
   const handleSubmit = async data => {
     const formData = new FormData()
@@ -11,7 +13,8 @@ export const Create = () => {
     formData.append('content', data.content)
     formData.append('image', data.image[0])
 
-    await createPost(formData)
+
+    dispatch(createNewPost(formData))
 
     history.push('/')
   }

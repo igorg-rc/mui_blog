@@ -1,13 +1,8 @@
-import { useEffect, useState } from 'react'
-import { useHistory, useRouteMatch } from 'react-router'
-import { getPost, updatePost } from '../../api/posts/api'
 import { Container, Typography, Button, TextField, makeStyles } from '@material-ui/core'
 import { Send, Publish } from '@material-ui/icons'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Form } from './Form'
-// import { Spinner } from './plugins/Spinner'
 
 const useStyles = makeStyles((theme) => ({
   mainContainer: {
@@ -54,36 +49,23 @@ const schema = yup.object().shape({
   content: yup.string().required().min(10)
 })
 
-export const Edit = () => {
+export const Form = ({ onSubmit, item }) => {
   const classes = useStyles()
-  const { register, handleSubmit, formState: { errors } } = useForm()
-  const [post, setPost] = useState()
+  // const { formState: {errors} } = useForm({
+  //   resolver: yupResolver(schema),
+  // })
 
-  const match = useRouteMatch()
-  const history = useHistory()
+  const { register, handleSubmit, formState: {errors} } = useForm({
+      defaultValues: { 
+        title: item ? item.title : "" ,
+        content : item ? item.content: "",
+        // image: item ? item.image[0] : null
+    },
+    // resolver: yupResolver(schema)
+  })
 
-  
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      const fetchedPost = await fetch(`api/posts/${match.params.id}`).then(res => res.json())
-      setPost(fetchedPost)
-    }
-    fetchPost()
-
-    //
-  }, [])
-
-  console.log(post)
-
-  const submitForm = async data => {
-    const formData = new FormData()
-    formData.append('title', data.title)
-    formData.append('content', data.content)
-    formData.append('image', data.image[0])
-    setPost(formData)
-    await updatePost(match.params.id, formData)
-    history.push('/')
+  const submitForm = data => {
+    onSubmit(data)
   }
 
   return (
@@ -91,7 +73,7 @@ export const Edit = () => {
       <Container maxWidth="md">
         <div className={classes.mainContainer}>
           <div className={classes.titleContainer}>
-            <Typography variant="h4" color="initial">Update post</Typography>
+            <Typography variant="h4" color="initial">Create new post</Typography>
           </div>
           <form
               className={classes.root}
@@ -147,6 +129,7 @@ export const Edit = () => {
             </form>
         </div>
       </Container>
+      
     </>
   )
 }
